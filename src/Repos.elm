@@ -23,13 +23,15 @@ type alias Repo =
 type alias Model =
   { userName : String
   , repos : List Repo
-  , isLoading : Bool }
+  , isLoading : Bool
+  , alert : String }
 
 initialModel : Model
 initialModel =
   { userName = "tusdrbomack"
   , repos = []
-  , isLoading = True }
+  , isLoading = True
+  , alert = "" }
 
 -- Adapter
 
@@ -54,43 +56,68 @@ getUrl : String -> String
 getUrl name =
   "https://api.github.com/users/" ++ name ++ "/repos"
 
-fetchData : String -> Effects Action
+fetchData : String -> Task.Task a (Result Http.Error (List Repo))
 fetchData name =
   Http.get reposDecoder (getUrl name)
-        |> Task.toMaybe
-        |> Task.map FetchDone
-        |> Effects.task
+      |> Task.toResult
+
+httpErrorToString : String -> Http.Error -> String
+httpErrorToString name err =
+  case err of
+    Http.Timeout -> "Timeout"
+    Http.NetworkError -> "Connection problem"
+    Http.UnexpectedPayload _ -> "That's weird. Something is broken!"
+    Http.BadResponse status msg ->
+      case status of
+        404 -> name ++ " found:("
+        _ -> msg
+
+httpResultToAction : String -> Result Http.Error (List Repo) -> Action
+httpResultToAction name result =
+  case result of
+    Ok repos ->
+      FetchDone repos
+    Err err ->
+      Error (httpErrorToString name err)
+
+fetchDataAsEffects : String -> Effects Action
+fetchDataAsEffects name =
+  fetchData name
+    |> Task.map (httpResultToAction name)
+    |> Effects.task
 
 -- Init
 
--- init : Model -> Effects Action
+init : ( Model, Effects Action )
 init =
   ( initialModel
-  , fetchData initialModel.userName )
+  , fetchDataAsEffects initialModel.userName )
 
 -- Actions
 
 type Action =
     FetchData (String)
-    | FetchDone (Maybe (List Repo))
+    | FetchDone (List Repo)
+    | Error String
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
     FetchData name ->
       ( { model | isLoading = True }
-      , fetchData name )
-    FetchDone result ->
-      let
-        getRepos =
-          case result of
-            Just value -> value
-            _ -> []
-      in
-        ( { model
-            | repos = getRepos
-            , isLoading = False }
-        , Effects.none )
+      , fetchDataAsEffects model.userName )
+    FetchDone results ->
+      ( { model
+          | repos = results
+          , isLoading = False
+          , alert = "" }
+      , Effects.none )
+    Error msg ->
+      ( { model
+          | repos = []
+          , isLoading = False
+          , alert = msg }
+      , Effects.none )
 
 -- View
 
@@ -122,15 +149,11 @@ repoView address repo =
 
 reposListView : Signal.Address Action -> List Repo -> Html
 reposListView address repos =
-  let
-    size =
-      List.length repos
-    empty =
-      div [] [ text "Not found" ]
-    list =
-      ul [] ( List.map (repoView address) repos )
-  in
-    if size == 0 then empty else list
+  ul [] ( List.map (repoView address) repos )
+
+alertView : Signal.Address Action -> String -> Html
+alertView address msg =
+  div [ class "error alert" ] [ text msg ]
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -141,6 +164,7 @@ view address model =
     div []
         [ headerView address model
         , div [] [ text ("Results for `" ++ model.userName ++ "`:")]
+        , alertView address model.alert
         , content ]
 
 app =
