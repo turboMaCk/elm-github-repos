@@ -5,6 +5,7 @@ import Task
 import Signal
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events as Events
 import Effects exposing (Effects)
 import StartApp
 
@@ -28,7 +29,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  { userName = "tusdrbomack"
+  { userName = "turbomack"
   , repos = []
   , isLoading = True
   , alert = "" }
@@ -95,14 +96,17 @@ init =
 
 -- Actions
 
-type Action =
-    FetchData (String)
+type Action = NoOp
+    | FetchData (String)
     | FetchDone (List Repo)
     | Error String
+    | NameChanged String
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
+    NoOp ->
+      ( model, Effects.none )
     FetchData name ->
       ( { model | isLoading = True }
       , fetchDataAsEffects model.userName )
@@ -118,28 +122,46 @@ update action model =
           , isLoading = False
           , alert = msg }
       , Effects.none )
+    NameChanged name ->
+      ( { model
+          | userName = name }
+      , Effects.none )
 
 -- View
 
+onInput : Signal.Address Action -> (String -> Action) -> Attribute
+onInput address f =
+  Events.on "input" Events.targetValue (\v -> Signal.message address (f v))
+
+onSubmit address value =
+  Events.onWithOptions "submit"
+    { stopPropagation = True, preventDefault = True }
+    Json.value (\_ -> Signal.message address (FetchData value))
+
 headerView : Signal.Address Action -> Model -> Html
 headerView address model =
-  header []
-         [ h1 []
-             [ text "Repos" ]
-         , Html.form []
-                [ span [] [ text "github.com/" ]
-                , input [ value model.userName ] []
-                , button [ type' "submit" ] [ text "Find" ] ]]
+  header
+    []
+    [ h1 []
+      [ text "Repos" ]
+    , Html.form
+        [ onSubmit address model.userName  ]
+        [ span [] [ text "github.com/" ]
+        , input
+            [ value model.userName
+            , onInput address NameChanged ] []
+        , button
+            [ type' "submit" ]
+            [ text "Find" ] ]]
 
 loadingView : Signal.Address Action -> Html
 loadingView address =
   div []
-      [ text "loading..." ]
+    [ text "loading..." ]
 
 repoView : Signal.Address Action -> Repo -> Html
 repoView address repo =
-  li
-    [ ]
+  li []
     [ img [ src repo.avatarUrl
           , class "avatar" ][]
     , h2 []
@@ -162,10 +184,10 @@ view address model =
       if model.isLoading then loadingView address else reposListView address model.repos
   in
     div []
-        [ headerView address model
-        , div [] [ text ("Results for `" ++ model.userName ++ "`:")]
-        , alertView address model.alert
-        , content ]
+     [ headerView address model
+     , div [] [ text ("Results for `" ++ model.userName ++ "`:")]
+     , alertView address model.alert
+     , content ]
 
 app =
   StartApp.start
