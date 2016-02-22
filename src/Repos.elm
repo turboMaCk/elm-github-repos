@@ -23,6 +23,7 @@ type alias Repo =
 
 type alias Model =
   { userName : String
+  , resultsFor : String
   , repos : List Repo
   , isLoading : Bool
   , alert : String }
@@ -30,6 +31,7 @@ type alias Model =
 initialModel : Model
 initialModel =
   { userName = "turbomack"
+  , resultsFor = "turbomack"
   , repos = []
   , isLoading = True
   , alert = "" }
@@ -108,7 +110,9 @@ update action model =
     NoOp ->
       ( model, Effects.none )
     FetchData name ->
-      ( { model | isLoading = True }
+      ( { model
+          | isLoading = True
+          , resultsFor = model.userName }
       , fetchDataAsEffects model.userName )
     FetchDone results ->
       ( { model
@@ -185,7 +189,7 @@ view address model =
   in
     div []
      [ headerView address model
-     , div [] [ text ("Results for `" ++ model.userName ++ "`:")]
+     , div [] [ text ("Results for `" ++ model.resultsFor ++ "`:")]
      , alertView address model.alert
      , content ]
 
