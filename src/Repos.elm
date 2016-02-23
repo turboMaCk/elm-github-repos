@@ -168,7 +168,8 @@ loadingView address =
 
 repoView : Signal.Address Action -> Repo -> Html
 repoView address repo =
-  li []
+  li
+    [ class "repo" ]
     [ img [ src repo.avatarUrl
           , class "avatar" ][]
     , h2 []
@@ -178,7 +179,9 @@ repoView address repo =
 
 reposListView : Signal.Address Action -> List Repo -> Html
 reposListView address repos =
-  ul [] ( List.map (repoView address) repos )
+  ul
+    [ class "repos-list" ]
+    ( List.map (repoView address) repos )
 
 alertView : Signal.Address Action -> String -> Html
 alertView address msg =
@@ -190,7 +193,8 @@ view address model =
     content =
       if model.isLoading then loadingView address else reposListView address model.repos
   in
-    div []
+    div
+     [ class "app-container" ]
      [ headerView address model
      , div [] [ text ("Results for `" ++ model.resultsFor ++ "`:")]
      , alertView address model.alert

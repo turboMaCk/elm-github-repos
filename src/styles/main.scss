@@ -1,0 +1,35 @@
+$light-blue: #BBE8F5;
+$blue: rgb(96, 181, 204);
+$font: 15px Helvetica;
+
+body {
+  background: $light-blue;
+  font: $font;
+}
+
+.app-container {
+  max-width: 500px;
+  margin: 30px auto;
+}
+
+.repos-list {
+  margin: 0;
+  padding: 0;
+}
+
+.repo {
+  text-indent: 0;
+  margin: 10px 0;
+  padding: 20px;
+  background: white;
+  list-style: none;
+  box-shadow: 0 5px 10px rgba(#000, .2);
+
+  .avatar {
+    float: left;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    margin-right: 15px;
+  }
+}

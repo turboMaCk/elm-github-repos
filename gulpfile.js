@@ -5,6 +5,8 @@ const watch = require('gulp-watch')
 const shell = require('gulp-shell')
 const plumber = require('gulp-plumber')
 const webserver = require('gulp-webserver')
+const sass = require('gulp-sass')
+
 
 // Initialize gulp-elm
 gulp.task('elm-init', elm.init)
@@ -30,18 +32,28 @@ gulp.task('test', ['elm-init'], () => {
     ))
 })
 
+// Sass
+gulp.task('sass', () => {
+  return gulp.src('src/**/*.scss')
+    .pipe(plumber())
+    .pipe(sass({outputStyle: 'compressed'}))
+    .pipe(gulp.dest('dist/'))
+});
+
 // Watch for changes and run test automatically
-gulp.task('watch', function() {
-  gulp.src('src/')
+gulp.task('watch', () => {
+  gulp.src('.')
     .pipe(webserver({
       livereload: true,
-      directoryListing: true,
+      directoryListing: false,
       open: true
     }))
   gulp.start('make')
   gulp.start('test')
+  gulp.start('sass')
   gulp.watch('src/**', ['make'])
   gulp.watch('tests/**', ['test'])
+  gulp.watch('src/**/*.scss', ['sass']);
 })
 
 // By default run tests and then starts
