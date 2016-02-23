@@ -1,0 +1,19 @@
+{
+  "name": "elm-github-repos",
+  "version": "0.0.1",
+  "description": "Github repository browser written in elm",
+  "main": "tmp/test.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "Marek Fajkus",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-elm": "^0.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-shell": "^0.5.2",
+    "gulp-watch": "^4.3.5",
+    "gulp-webserver": "^0.9.1"
+  }
+}

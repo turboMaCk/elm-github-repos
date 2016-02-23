@@ -1,3 +1,6 @@
+module Repos where
+
+import List
 import Graphics.Element exposing (..)
 import Http
 import Json.Decode as Json exposing ((:=))
