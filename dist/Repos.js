@@ -12267,7 +12267,7 @@ Elm.Repos.make = function (_elm) {
       return A2($Html.header,
       _U.list([$Html$Attributes.$class("header")]),
       _U.list([A2($Html.img,
-              _U.list([$Html$Attributes.src("/assets/octo.png")
+              _U.list([$Html$Attributes.src("assets/octocat.png")
                       ,$Html$Attributes.$class("octo-cat")]),
               _U.list([]))
               ,A2($Html.h1,
