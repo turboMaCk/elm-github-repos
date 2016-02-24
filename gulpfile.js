@@ -46,7 +46,7 @@ gulp.task('watch', () => {
     .pipe(webserver({
       livereload: true,
       directoryListing: false,
-      open: true
+      open: false
     }))
   gulp.start('make')
   gulp.start('test')

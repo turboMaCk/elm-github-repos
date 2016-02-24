@@ -148,40 +148,54 @@ onSubmit address value =
 headerView : Signal.Address Action -> Model -> Html
 headerView address model =
   header
-    []
-    [ h1 []
+    [ class "header" ]
+    [ img
+      [ src "/assets/octo.png"
+      , class "octo-cat" ] []
+    , h1
+      [ class "headline" ]
       [ text "Repos" ]
     , Html.form
-        [ onSubmit address model.userName  ]
-        [ span [] [ text "github.com/" ]
+        [ onSubmit address model.userName
+        , class "search-form" ]
+        [ span
+          [ class "hint" ]
+          [ text "github.com/" ]
         , input
             [ value model.userName
-            , onInput address NameChanged ] []
+            , onInput address NameChanged
+            , class "search-field" ] []
         , button
-            [ type' "submit" ]
-            [ text "Find" ] ]]
+            [ type' "submit"
+            , class "submit-btn" ]
+            [ text "Go" ] ]]
 
 loadingView : Signal.Address Action -> Html
 loadingView address =
   div []
-    [ text "loading..." ]
+  [ text "loading..." ]
 
 repoView : Signal.Address Action -> Repo -> Html
 repoView address repo =
   li
-    [ class "repo" ]
-    [ img [ src repo.avatarUrl
-          , class "avatar" ][]
-    , h2 []
-         [ text repo.name ]
-    , a [ href repo.htmlUrl ]
-        [ text repo.htmlUrl ] ]
+  [ class "repo" ]
+  [ img
+    [ src repo.avatarUrl
+    , class "avatar" ] []
+  , div
+    [ class "repo-info" ]
+    [ h2
+      [ class "repo-name" ]
+      [ a
+      [ href repo.htmlUrl
+      , target "_blank" ]
+      [ text repo.name ]]]]
 
 reposListView : Signal.Address Action -> List Repo -> Html
 reposListView address repos =
   ul
-    [ class "repos-list" ]
-    ( List.map (repoView address) repos )
+  [ class "repos-list" ]
+  ( List.map (repoView address) repos )
 
 alertView : Signal.Address Action -> String -> Html
 alertView address msg =
@@ -193,12 +207,19 @@ view address model =
     content =
       if model.isLoading then loadingView address else reposListView address model.repos
   in
-    div
-     [ class "app-container" ]
-     [ headerView address model
-     , div [] [ text ("Results for `" ++ model.resultsFor ++ "`:")]
-     , alertView address model.alert
-     , content ]
+    div []
+    [ a
+      [ href "https://github.com/turboMaCk/elm-github-repos"
+      , class "fork-link" ]
+      [ text "Fork me on Github" ]
+    , div
+      [ class "app-container" ]
+      [ headerView address model
+      , div
+        [ class "results-for" ]
+        [ text ("Results for `" ++ model.resultsFor ++ "`:")]
+      , alertView address model.alert
+      , content ]]
 
 app =
   StartApp.start

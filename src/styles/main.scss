@@ -1,15 +1,78 @@
 $light-blue: #BBE8F5;
 $blue: rgb(96, 181, 204);
-$font: 15px Helvetica;
+$font: Open Sans, Helvetica, Arial, sans-serif;
 
 body {
   background: $light-blue;
-  font: $font;
+  font-size: 15px;
+  font-family: $font;
+}
+
+.fork-link {
+  display: block;
+  position: absolute;
+  top: 50px;
+  right: -50px;
+  width: 220px;
+  padding: 10px;
+  text-align: center;
+  background: $blue;
+  color: #ffffff;
+  transform: rotate(45deg);
+  text-decoration: none;
 }
 
 .app-container {
-  max-width: 500px;
+  max-width: 700px;
   margin: 30px auto;
+  padding: 0 10px;
+}
+
+.header {
+  text-align: center;
+}
+
+.headline {
+  text-align: center;
+  font-size: 35px;
+  color: $blue;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+.search-form {
+  $font-size: 20px;
+  font-size: 20px;
+
+  .hint {
+    color: $font-size;
+  }
+
+  .search-field {
+    font-family: $font;
+    font-size: $font-size;
+    font-style: italic;
+    width: 150px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid $blue;
+    outline: 0;
+  }
+
+  .submit-btn {
+    background: $blue;
+    border: none;
+    color: #fff;
+    fona-family: $font;
+    font-size: $font-size - 5;
+    letter-spacing: .1em;
+    border-radius: 5px;
+  }
+}
+
+.results-for {
+  margin-top: 20px;
+  color: $blue;
 }
 
 .repos-list {
@@ -26,10 +89,29 @@ body {
   box-shadow: 0 5px 10px rgba(#000, .2);
 
   .avatar {
+    display: block;
     float: left;
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
     border-radius: 100%;
     margin-right: 15px;
+  }
+
+  .repo-info {
+    margin-left: 65px;
+  }
+
+  .repo-name {
+    margin: 0;
+    line-height: 75px;
+
+    & > a {
+      color: #000000;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
