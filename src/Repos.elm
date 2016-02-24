@@ -150,7 +150,7 @@ headerView address model =
   header
     [ class "header" ]
     [ img
-      [ src "/assets/octo.png"
+      [ src "assets/octocat.png"
       , class "octo-cat" ] []
     , h1
       [ class "headline" ]
