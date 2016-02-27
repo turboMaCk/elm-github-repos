@@ -208,11 +208,11 @@ repoView address model repo =
       , target "_blank" ]
       [ text repo.name ]]]]
 
-reposListView : Signal.Address Action -> Model -> List Repo -> Html
-reposListView address model repos =
+reposListView : Signal.Address Action -> Model -> Html
+reposListView address model =
   ul
   [ class "repos-list" ]
-  ( List.map (repoView address model) repos )
+  ( List.map (repoView address model) model.repos )
 
 alertView : Signal.Address Action -> String -> Html
 alertView address msg =
@@ -222,7 +222,7 @@ view : Signal.Address Action -> Model -> Html
 view address model =
   let
     content =
-      if model.isLoading then loadingView address else reposListView address model model.repos
+      if model.isLoading then loadingView address else reposListView address model
   in
     div []
     [ a
