@@ -1,6 +1,11 @@
+$ultra-light-blue: #D7F5FD;
 $light-blue: #BBE8F5;
 $blue: rgb(96, 181, 204);
 $font: Open Sans, Helvetica, Arial, sans-serif;
+
+* {
+  box-sizing: border-box;
+}
 
 body {
   background: $light-blue;
@@ -63,7 +68,7 @@ body {
     background: $blue;
     border: none;
     color: #fff;
-    fona-family: $font;
+    font-family: $font;
     font-size: $font-size - 5;
     letter-spacing: .1em;
     border-radius: 5px;
@@ -83,13 +88,17 @@ body {
 .repo {
   text-indent: 0;
   margin: 20px 0;
-  padding: 20px;
-  background: white;
   list-style: none;
+  background: white;
   box-shadow: 0 3px 10px rgba(#000, .2);
 
-  &:hover {
-    box-shadow: 0 5px 10px rgba(#000, .2);
+  .repo-main {
+    padding: 20px;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 5px 10px rgba(#000, .2);
+    }
   }
 
   .avatar {
@@ -117,5 +126,30 @@ body {
         text-decoration: underline;
       }
     }
+  }
+
+  .repo-details {
+    display: none;
+    padding: 20px;
+    background: #ffffff;
+  }
+
+  &.selected {
+    background: $ultra-light-blue;
+
+    .repo-details {
+      display: block;
+    }
+  }
+
+  .clone-input {
+    font-family: $font;
+    background: $ultra-light-blue;
+    width: 100%;
+    height: 25px;
+    margin-top: 5px;
+    padding: 0 5px;
+    border-radius: 2px;
+    border: 1px solid $blue;
   }
 }

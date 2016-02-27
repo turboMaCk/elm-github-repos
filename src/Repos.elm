@@ -192,21 +192,39 @@ loadingView address =
 
 repoView : Signal.Address Action -> Model -> Repo -> Html
 repoView address model repo =
-  li
-  [ class "repo"
-  , Events.onClick address (SelectRepo repo) ]
-  [ img
-    [ src repo.avatarUrl
-    , class "avatar" ] []
-  , div
-    [ class "repo-info" ]
-    [ span [] [text (if isSelected model repo then "slected" else "nope")]
-    , h2
-      [ class "repo-name" ]
-      [ a
-      [ href repo.htmlUrl
-      , target "_blank" ]
-      [ text repo.name ]]]]
+  let
+    classNames =
+      if isSelected model repo then "repo selected" else "repo"
+    cloneValue =
+      "git clone " ++ repo.sshUrl
+  in
+    li
+    [ class classNames ]
+    [ div
+      [ class "repo-main"
+      , Events.onClick address (SelectRepo repo)]
+      [ img
+        [ src repo.avatarUrl
+        , class "avatar" ] []
+      , div
+        [ class "repo-info" ]
+        [ h2
+          [ class "repo-name" ]
+          [ a
+          [ href repo.htmlUrl
+          , target "_blank" ]
+          [ text repo.name ]]]]
+    , div
+      [ class "repo-details" ]
+      [ div
+        [ class "clone" ]
+        [ label
+          [ class "clone-label"]
+          [ text "clone:"
+          , input
+            [ class "clone-input"
+            , disabled True
+            , value cloneValue ] []]]]]
 
 reposListView : Signal.Address Action -> Model -> Html
 reposListView address model =
