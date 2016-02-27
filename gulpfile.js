@@ -56,6 +56,12 @@ gulp.task('watch', () => {
   gulp.watch('src/**/*.scss', ['sass']);
 })
 
+// Build whole project
+gulp.task('build', () => {
+  gulp.start('make')
+  gulp.start('sass')
+})
+
 // By default run tests and then starts
 // watching for changes
 gulp.task('default', ['watch'])
