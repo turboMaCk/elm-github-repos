@@ -12311,11 +12311,11 @@ Elm.Repos.make = function (_elm) {
             },
             repos);
          } else {
-            return A2($List.sortBy,
+            return $List.reverse(A2($List.sortBy,
             function (_) {
                return _.stargazersCount;
             },
-            repos);
+            repos));
          }
    });
    var isSelected = F2(function (model,repo) {
