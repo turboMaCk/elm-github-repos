@@ -86,6 +86,36 @@ body {
   padding: 0;
 }
 
+.sort-filter {
+  float: right;
+  margin-top: 20px;
+  border-radius: 5px;
+  overflow: hidden;
+
+  button {
+    font-family: $font;
+    font-size: 15px;
+    border: none;
+    display: block;
+    float: left;
+    color: $blue;
+    background: $ultra-light-blue;
+    border-left: solid 3px $light-blue;
+    outline: none;
+    cursor: pointer;
+
+    &:first-child {
+      border-left: none;
+    }
+
+    &.active {
+      cursor: auto;
+      background: $blue;
+      color: #ffffff;
+    }
+  }
+}
+
 .repo {
   text-indent: 0;
   margin: 20px 0;
@@ -127,6 +157,11 @@ body {
         text-decoration: underline;
       }
     }
+  }
+
+  .stars-count {
+    display: block;
+    float: right;
   }
 
   .repo-details {

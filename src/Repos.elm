@@ -203,16 +203,24 @@ headerView address model =
             , class "submit-btn" ]
             [ text "Go" ] ]]
 
-sortView : Signal.Address Action -> Html
-sortView address =
-  div
-    [ class "sort-filter" ]
-    [ button
-      [ Events.onClick address (ChangeSort Name) ]
-      [ text "name" ]
-    , button
-      [ Events.onClick address (ChangeSort Stars) ]
-      [ text "stars" ]]
+sortView : Signal.Address Action -> Model -> Html
+sortView address model =
+  let
+    isActive attr =
+      model.sortBy == attr
+    classNames attr =
+      if isActive attr then "active" else "inactive"
+  in
+    div
+      [ class "sort-filter" ]
+      [ button
+        [ class (classNames Name)
+        , Events.onClick address (ChangeSort Name) ]
+        [ text "name" ]
+      , button
+        [ class (classNames Stars)
+        , Events.onClick address (ChangeSort Stars) ]
+        [ text "stars" ]]
 
 loadingView : Signal.Address Action -> Html
 loadingView address =
@@ -237,7 +245,10 @@ repoView address model repo =
         , class "avatar" ] []
       , div
         [ class "repo-info" ]
-        [ h2
+        [ span
+          [ class "stars-count" ]
+          [ text ("stars: " ++ (toString repo.stargazersCount)) ]
+        , h2
           [ class "repo-name" ]
           [ a
           [ href repo.htmlUrl
@@ -279,7 +290,7 @@ view address model =
     , div
       [ class "app-container" ]
       [ headerView address model
-      , sortView address
+      , sortView address model
       , div
         [ class "results-for" ]
         [ text ("Results for `" ++ model.resultsFor ++ "`:")]
