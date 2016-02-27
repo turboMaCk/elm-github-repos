@@ -30,7 +30,11 @@ type alias Model =
   , repos : List Repo
   , isLoading : Bool
   , alert : String
-  , selected : Int }
+  , selected : Int
+  , sortBy : SortBy }
+
+type SortBy = Name
+    | Stars
 
 initialModel : Model
 initialModel =
@@ -39,11 +43,20 @@ initialModel =
   , repos = []
   , isLoading = True
   , alert = ""
-  , selected = -1 }
+  , selected = -1
+  , sortBy = Name }
 
 isSelected : Model -> Repo -> Bool
 isSelected model repo =
   if model.selected == repo.id then True else False
+
+sort : SortBy -> List Repo -> List Repo
+sort sortBy repos =
+  case sortBy of
+    Name ->
+      repos |> List.sortBy .name
+    Stars ->
+      repos |> List.sortBy .stargazersCount
 
 -- Adapter
 
@@ -113,6 +126,7 @@ type Action = NoOp
     | Error String
     | NameChanged String
     | SelectRepo Repo
+    | ChangeSort SortBy
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -148,6 +162,10 @@ update action model =
         ( { model
             | selected = value }
         , Effects.none )
+    ChangeSort attr ->
+      ( { model
+          | sortBy = attr }
+      , Effects.none )
 
 -- View
 
@@ -184,6 +202,17 @@ headerView address model =
             [ type' "submit"
             , class "submit-btn" ]
             [ text "Go" ] ]]
+
+sortView : Signal.Address Action -> Html
+sortView address =
+  div
+    [ class "sort-filter" ]
+    [ button
+      [ Events.onClick address (ChangeSort Name) ]
+      [ text "name" ]
+    , button
+      [ Events.onClick address (ChangeSort Stars) ]
+      [ text "stars" ]]
 
 loadingView : Signal.Address Action -> Html
 loadingView address =
@@ -230,7 +259,7 @@ reposListView : Signal.Address Action -> Model -> Html
 reposListView address model =
   ul
   [ class "repos-list" ]
-  ( List.map (repoView address model) model.repos )
+  ( model.repos |> sort model.sortBy |> List.map (repoView address model) )
 
 alertView : Signal.Address Action -> String -> Html
 alertView address msg =
@@ -250,6 +279,7 @@ view address model =
     , div
       [ class "app-container" ]
       [ headerView address model
+      , sortView address
       , div
         [ class "results-for" ]
         [ text ("Results for `" ++ model.resultsFor ++ "`:")]
