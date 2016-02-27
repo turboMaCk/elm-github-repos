@@ -29,7 +29,8 @@ type alias Model =
   , resultsFor : String
   , repos : List Repo
   , isLoading : Bool
-  , alert : String }
+  , alert : String
+  , selected : Int }
 
 initialModel : Model
 initialModel =
@@ -37,7 +38,12 @@ initialModel =
   , resultsFor = "turbomack"
   , repos = []
   , isLoading = True
-  , alert = "" }
+  , alert = ""
+  , selected = -1 }
+
+isSelected : Model -> Repo -> Bool
+isSelected model repo =
+  if model.selected == repo.id then True else False
 
 -- Adapter
 
@@ -106,6 +112,7 @@ type Action = NoOp
     | FetchDone (List Repo)
     | Error String
     | NameChanged String
+    | SelectRepo Repo
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -133,6 +140,14 @@ update action model =
       ( { model
           | userName = name }
       , Effects.none )
+    SelectRepo repo ->
+      let
+        value =
+          if repo.id == model.selected then -1 else repo.id
+      in
+        ( { model
+            | selected = value }
+        , Effects.none )
 
 -- View
 
@@ -175,27 +190,29 @@ loadingView address =
   div []
   [ text "loading..." ]
 
-repoView : Signal.Address Action -> Repo -> Html
-repoView address repo =
+repoView : Signal.Address Action -> Model -> Repo -> Html
+repoView address model repo =
   li
-  [ class "repo" ]
+  [ class "repo"
+  , Events.onClick address (SelectRepo repo) ]
   [ img
     [ src repo.avatarUrl
     , class "avatar" ] []
   , div
     [ class "repo-info" ]
-    [ h2
+    [ span [] [text (if isSelected model repo then "slected" else "nope")]
+    , h2
       [ class "repo-name" ]
       [ a
       [ href repo.htmlUrl
       , target "_blank" ]
       [ text repo.name ]]]]
 
-reposListView : Signal.Address Action -> List Repo -> Html
-reposListView address repos =
+reposListView : Signal.Address Action -> Model -> List Repo -> Html
+reposListView address model repos =
   ul
   [ class "repos-list" ]
-  ( List.map (repoView address) repos )
+  ( List.map (repoView address model) repos )
 
 alertView : Signal.Address Action -> String -> Html
 alertView address msg =
@@ -205,7 +222,7 @@ view : Signal.Address Action -> Model -> Html
 view address model =
   let
     content =
-      if model.isLoading then loadingView address else reposListView address model.repos
+      if model.isLoading then loadingView address else reposListView address model model.repos
   in
     div []
     [ a
