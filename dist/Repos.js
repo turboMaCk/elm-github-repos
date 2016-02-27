@@ -12223,6 +12223,9 @@ Elm.Repos.make = function (_elm) {
          return A2($Signal.message,address,f(v));
       });
    });
+   var ChangeSort = function (a) {
+      return {ctor: "ChangeSort",_0: a};
+   };
    var SelectRepo = function (a) {
       return {ctor: "SelectRepo",_0: a};
    };
@@ -12299,6 +12302,22 @@ Elm.Repos.make = function (_elm) {
       "https://api.github.com/users/",
       A2($Basics._op["++"],name,"/repos"));
    };
+   var sort = F2(function (sortBy,repos) {
+      var _p4 = sortBy;
+      if (_p4.ctor === "Name") {
+            return A2($List.sortBy,
+            function (_) {
+               return _.name;
+            },
+            repos);
+         } else {
+            return A2($List.sortBy,
+            function (_) {
+               return _.stargazersCount;
+            },
+            repos);
+         }
+   });
    var isSelected = F2(function (model,repo) {
       return _U.eq(model.selected,repo.id) ? true : false;
    });
@@ -12320,12 +12339,17 @@ Elm.Repos.make = function (_elm) {
                       _U.list([]))
                       ,A2($Html.div,
                       _U.list([$Html$Attributes.$class("repo-info")]),
-                      _U.list([A2($Html.h2,
-                      _U.list([$Html$Attributes.$class("repo-name")]),
-                      _U.list([A2($Html.a,
-                      _U.list([$Html$Attributes.href(repo.htmlUrl)
-                              ,$Html$Attributes.target("_blank")]),
-                      _U.list([$Html.text(repo.name)]))]))]))]))
+                      _U.list([A2($Html.span,
+                              _U.list([$Html$Attributes.$class("stars-count")]),
+                              _U.list([$Html.text(A2($Basics._op["++"],
+                              "stars: ",
+                              $Basics.toString(repo.stargazersCount)))]))
+                              ,A2($Html.h2,
+                              _U.list([$Html$Attributes.$class("repo-name")]),
+                              _U.list([A2($Html.a,
+                              _U.list([$Html$Attributes.href(repo.htmlUrl)
+                                      ,$Html$Attributes.target("_blank")]),
+                              _U.list([$Html.text(repo.name)]))]))]))]))
               ,A2($Html.div,
               _U.list([$Html$Attributes.$class("repo-details")]),
               _U.list([A2($Html.div,
@@ -12342,7 +12366,36 @@ Elm.Repos.make = function (_elm) {
    var reposListView = F2(function (address,model) {
       return A2($Html.ul,
       _U.list([$Html$Attributes.$class("repos-list")]),
-      A2($List.map,A2(repoView,address,model),model.repos));
+      A2($List.map,
+      A2(repoView,address,model),
+      A2(sort,model.sortBy,model.repos)));
+   });
+   var Stars = {ctor: "Stars"};
+   var Name = {ctor: "Name"};
+   var initialModel = {userName: "turbomack"
+                      ,resultsFor: "turbomack"
+                      ,repos: _U.list([])
+                      ,isLoading: true
+                      ,alert: ""
+                      ,selected: -1
+                      ,sortBy: Name};
+   var sortView = F2(function (address,model) {
+      var isActive = function (attr) {
+         return _U.eq(model.sortBy,attr);
+      };
+      var classNames = function (attr) {
+         return isActive(attr) ? "active" : "inactive";
+      };
+      return A2($Html.div,
+      _U.list([$Html$Attributes.$class("sort-filter")]),
+      _U.list([A2($Html.button,
+              _U.list([$Html$Attributes.$class(classNames(Name))
+                      ,A2($Html$Events.onClick,address,ChangeSort(Name))]),
+              _U.list([$Html.text("name")]))
+              ,A2($Html.button,
+              _U.list([$Html$Attributes.$class(classNames(Stars))
+                      ,A2($Html$Events.onClick,address,ChangeSort(Stars))]),
+              _U.list([$Html.text("stars")]))]));
    });
    var view = F2(function (address,model) {
       var content = model.isLoading ? loadingView(address) : A2(reposListView,
@@ -12357,6 +12410,7 @@ Elm.Repos.make = function (_elm) {
               ,A2($Html.div,
               _U.list([$Html$Attributes.$class("app-container")]),
               _U.list([A2(headerView,address,model)
+                      ,A2(sortView,address,model)
                       ,A2($Html.div,
                       _U.list([$Html$Attributes.$class("results-for")]),
                       _U.list([$Html.text(A2($Basics._op["++"],
@@ -12365,19 +12419,14 @@ Elm.Repos.make = function (_elm) {
                       ,A2(alertView,address,model.alert)
                       ,content]))]));
    });
-   var initialModel = {userName: "turbomack"
-                      ,resultsFor: "turbomack"
-                      ,repos: _U.list([])
-                      ,isLoading: true
-                      ,alert: ""
-                      ,selected: -1};
-   var Model = F6(function (a,b,c,d,e,f) {
+   var Model = F7(function (a,b,c,d,e,f,g) {
       return {userName: a
              ,resultsFor: b
              ,repos: c
              ,isLoading: d
              ,alert: e
-             ,selected: f};
+             ,selected: f
+             ,sortBy: g};
    });
    var Repo = F6(function (a,b,c,d,e,f) {
       return {id: a
@@ -12412,8 +12461,8 @@ Elm.Repos.make = function (_elm) {
               ,_0: initialModel
               ,_1: fetchDataAsEffects(initialModel.userName)};
    var update = F2(function (action,model) {
-      var _p4 = action;
-      switch (_p4.ctor)
+      var _p5 = action;
+      switch (_p5.ctor)
       {case "NoOp": return {ctor: "_Tuple2"
                            ,_0: model
                            ,_1: $Effects.none};
@@ -12422,20 +12471,23 @@ Elm.Repos.make = function (_elm) {
                                   {isLoading: true,resultsFor: model.userName})
                                   ,_1: fetchDataAsEffects(model.userName)};
          case "FetchDone": return {ctor: "_Tuple2"
-                                  ,_0: _U.update(model,{repos: _p4._0,isLoading: false,alert: ""})
+                                  ,_0: _U.update(model,{repos: _p5._0,isLoading: false,alert: ""})
                                   ,_1: $Effects.none};
          case "Error": return {ctor: "_Tuple2"
                               ,_0: _U.update(model,
-                              {repos: _U.list([]),isLoading: false,alert: _p4._0})
+                              {repos: _U.list([]),isLoading: false,alert: _p5._0})
                               ,_1: $Effects.none};
          case "NameChanged": return {ctor: "_Tuple2"
-                                    ,_0: _U.update(model,{userName: _p4._0})
+                                    ,_0: _U.update(model,{userName: _p5._0})
                                     ,_1: $Effects.none};
-         default: var _p5 = _p4._0;
-           var value = _U.eq(_p5.id,model.selected) ? -1 : _p5.id;
+         case "SelectRepo": var _p6 = _p5._0;
+           var value = _U.eq(_p6.id,model.selected) ? -1 : _p6.id;
            return {ctor: "_Tuple2"
                   ,_0: _U.update(model,{selected: value})
-                  ,_1: $Effects.none};}
+                  ,_1: $Effects.none};
+         default: return {ctor: "_Tuple2"
+                         ,_0: _U.update(model,{sortBy: _p5._0})
+                         ,_1: $Effects.none};}
    });
    var app = $StartApp.start({init: init
                              ,update: update
@@ -12447,8 +12499,11 @@ Elm.Repos.make = function (_elm) {
    return _elm.Repos.values = {_op: _op
                               ,Repo: Repo
                               ,Model: Model
+                              ,Name: Name
+                              ,Stars: Stars
                               ,initialModel: initialModel
                               ,isSelected: isSelected
+                              ,sort: sort
                               ,reposDecoder: reposDecoder
                               ,repoDecoder: repoDecoder
                               ,getUrl: getUrl
@@ -12463,10 +12518,12 @@ Elm.Repos.make = function (_elm) {
                               ,Error: Error
                               ,NameChanged: NameChanged
                               ,SelectRepo: SelectRepo
+                              ,ChangeSort: ChangeSort
                               ,update: update
                               ,onInput: onInput
                               ,onSubmit: onSubmit
                               ,headerView: headerView
+                              ,sortView: sortView
                               ,loadingView: loadingView
                               ,repoView: repoView
                               ,reposListView: reposListView
