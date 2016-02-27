@@ -2,7 +2,7 @@ Elm Github Repos
 ================
 
 This project is an example HTML application with Ajax written in [Elm-language](http://elm-lang.org).
-There is [working demo](turbomack.github.io/elm-github-repos/)
+There is [working demo](http://turbomack.github.io/elm-github-repos/)
 
 ## Building locally
 You can clone this repository using git. There are also useful build automation using [gulp](http://gulpjs.com/).
