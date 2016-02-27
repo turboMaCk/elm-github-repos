@@ -56,9 +56,7 @@ sort sortBy repos =
     Name ->
       repos |> List.sortBy .name
     Stars ->
-      repos |> List.sortBy .stargazersCount
-
--- Adapter
+      repos |> List.sortBy .stargazersCount |> List.reverse
 
 reposDecoder : Json.Decoder (List Repo)
 reposDecoder =
