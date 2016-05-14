@@ -1,6 +1,8 @@
 module Repos exposing (main)
 
 import List
+import Html exposing (..)
+import Html.App as Html
 
 -- Model
 
@@ -285,17 +287,10 @@ view model =
       , alertView model.alert
       , content ]]
 
-app =
-  StartApp.start
+main : Signal Html
+main =
+  Html.program
     { init = init
     , update = update
     , view = view
-    , inputs = [] }
-
-main : Signal Html
-main =
-  app.html
-
-port tasks : Signal (Task.Task Effects.Never ())
-port tasks =
-  app.tasks
+    , subscriptions = \_ -> Sub.none }
