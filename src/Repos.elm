@@ -166,8 +166,8 @@ oSubmit address value =
     { stopPropagation = True, preventDefault = True }
     Json.value (\_ -> Signal.message address (FetchData value))
 
-headerView : Signal.Address Action -> Model -> Html
-headerView address model =
+headerView : Model -> Html Msg
+headerView model =
   header
     [ class "header" ]
     [ img
@@ -191,8 +191,8 @@ headerView address model =
             , class "submit-btn" ]
             [ text "Go" ] ]]
 
-sortView : Signal.Address Action -> Model -> Html
-sortView address model =
+sortView : Model -> Html Msg
+sortView model =
   let
     isActive attr =
       model.sortBy == attr
@@ -210,13 +210,13 @@ sortView address model =
         , Events.onClick address (ChangeSort Stars) ]
         [ text "stars" ]]
 
-loadingView : Signal.Address Action -> Html
-loadingView address =
+loadingView : Html Msg
+loadingView =
   div []
   [ text "loading..." ]
 
-repoView : Signal.Address Action -> Model -> Repo -> Html
-repoView address model repo =
+repoView : Model -> Repo -> Html Msg
+repoView model repo =
   let
     classNames =
       if isSelected model repo then "repo selected" else "repo"
@@ -254,21 +254,21 @@ repoView address model repo =
             , disabled True
             , value cloneValue ] []]]]]
 
-reposListView : Signal.Address Action -> Model -> Html
-reposListView address model =
+reposListView : Model -> Html Msg
+reposListView model =
   ul
   [ class "repos-list" ]
-  ( model.repos |> sort model.sortBy |> List.map (repoView address model) )
+  ( model.repos |> sort model.sortBy |> List.map (repoView model) )
 
-alertView : Signal.Address Action -> String -> Html
-alertView address msg =
+alertView : String -> Html Msg
+alertView msg =
   div [ class "error alert" ] [ text msg ]
 
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : Model -> Html Msg
+view model =
   let
     content =
-      if model.isLoading then loadingView address else reposListView address model
+      if model.isLoading then loadingView else reposListView model
   in
     div []
     [ a
@@ -277,12 +277,12 @@ view address model =
       [ text "Fork me on Github" ]
     , div
       [ class "app-container" ]
-      [ headerView address model
-      , sortView address model
+      [ headerView model
+      , sortView model
       , div
         [ class "results-for" ]
         [ text ("Results for `" ++ model.resultsFor ++ "`:")]
-      , alertView address model.alert
+      , alertView model.alert
       , content ]]
 
 app =
