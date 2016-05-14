@@ -91,7 +91,7 @@ httpErrorToString name err =
         404 -> name ++ "not found:("
         _ -> msg
 
-httpResultToAction : String -> Result Http.Error (List Repo) -> Action
+httpResultToAction : String -> Result Http.Error (List Repo) -> Msg
 httpResultToAction name result =
   case result of
     Ok repos ->
@@ -99,22 +99,22 @@ httpResultToAction name result =
     Err err ->
       Error (httpErrorToString name err)
 
-fetchDataAsEffects : String -> Effects Action
-fetchDataAsEffects name =
-  fetchData name
-    |> Task.map (httpResultToAction name)
-    |> Effects.task
+-- fetchDataAsEffects : String -> Effects Action
+-- fetchDataAsEffects name =
+--   fetchData name
+--     |> Task.map (httpResultToAction name)
+--     |> Effects.task
 
 -- Init
 
-init : ( Model, Effects Action )
+init : ( Model, Cmd Msg )
 init =
   ( initialModel
-  , fetchDataAsEffects initialModel.userName )
+  , fetchData initialModel.userName )
 
 -- Actions
 
-type Action = NoOp
+type Msg = NoOp
     | FetchData String
     | FetchDone (List Repo)
     | Error String
@@ -122,32 +122,32 @@ type Action = NoOp
     | SelectRepo Repo
     | ChangeSort SortBy
 
-update : Action -> Model -> (Model, Effects Action)
-update action model =
-  case action of
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+  case msg of
     NoOp ->
-      ( model, Effects.none )
+      ( model, Cmd.none )
     FetchData name ->
       ( { model
           | isLoading = True
           , resultsFor = model.userName }
-      , fetchDataAsEffects model.userName )
+      , fetchData model.userName )
     FetchDone results ->
       ( { model
           | repos = results
           , isLoading = False
           , alert = "" }
-      , Effects.none )
+      , Cmd.none )
     Error msg ->
       ( { model
           | repos = []
           , isLoading = False
           , alert = msg }
-      , Effects.none )
+      , Cmd.none )
     NameChanged name ->
       ( { model
           | userName = name }
-      , Effects.none )
+      , Cmd.none )
     SelectRepo repo ->
       let
         value =
@@ -155,11 +155,11 @@ update action model =
       in
         ( { model
             | selected = value }
-        , Effects.none )
+        , Cmd.none )
     ChangeSort attr ->
       ( { model
           | sortBy = attr }
-      , Effects.none )
+      , Cmd.none )
 
 -- View
 
@@ -183,14 +183,14 @@ headerView model =
       [ class "headline" ]
       [ text "Repos" ]
     , Html.form
-        [ onSubmit address model.userName
-        , class "search-form" ]
+        [ -- onSubmit address model.userName
+          class "search-form" ]
         [ span
           [ class "hint" ]
           [ text "github.com/" ]
         , input
             [ value model.userName
-            , onInput address NameChanged
+            -- , onInput address NameChanged
             , class "search-field" ] []
         , button
             [ type' "submit"
@@ -209,11 +209,13 @@ sortView model =
       [ class "sort-filter" ]
       [ button
         [ class (classNames Name)
-        , Events.onClick address (ChangeSort Name) ]
+        -- , Events.onClick address (ChangeSort Name)
+        ]
         [ text "name" ]
       , button
         [ class (classNames Stars)
-        , Events.onClick address (ChangeSort Stars) ]
+        -- , Events.onClick address (ChangeSort Stars)
+        ]
         [ text "stars" ]]
 
 loadingView : Html Msg
@@ -233,7 +235,8 @@ repoView model repo =
     [ class classNames ]
     [ div
       [ class "repo-main"
-      , Events.onClick address (SelectRepo repo)]
+      -- , Events.onClick address (SelectRepo repo)
+      ]
       [ img
         [ src repo.avatarUrl
         , class "avatar" ] []
