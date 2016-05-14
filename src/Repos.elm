@@ -163,14 +163,14 @@ update action model =
 
 -- View
 
-onInput : Signal.Address Action -> (String -> Action) -> Attribute
-onInput address f =
-  Events.on "input" Events.targetValue (\v -> Signal.message address (f v))
+-- onInput : Signal.Address Action -> (String -> Action) -> Attribute
+-- onInput address f =
+--   Events.on "input" Events.targetValue (\v -> Signal.message address (f v))
 
-oSubmit address value =
-  Events.onWithOptions "submit"
-    { stopPropagation = True, preventDefault = True }
-    Json.value (\_ -> Signal.message address (FetchData value))
+-- oSubmit address value =
+--   Events.onWithOptions "submit"
+--     { stopPropagation = True, preventDefault = True }
+--     Json.value (\_ -> Signal.message address (FetchData value))
 
 headerView : Model -> Html Msg
 headerView model =
