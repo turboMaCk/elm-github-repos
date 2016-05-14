@@ -54,6 +54,8 @@ sort sortBy repos =
     Stars ->
       repos |> List.sortBy .stargazersCount |> List.reverse
 
+-- HTTP
+
 reposDecoder : Json.Decoder (List Repo)
 reposDecoder =
   Json.list repoDecoder
@@ -75,10 +77,12 @@ getUrl : String -> String
 getUrl name =
   "https://api.github.com/users/" ++ name ++ "/repos"
 
-fetchData : String -> Task.Task a (Result Http.Error (List Repo))
+fetchData : String -> Cmd Msg
 fetchData name =
-  Http.get reposDecoder (getUrl name)
-      |> Task.toResult
+  let
+    url = getUrl name
+  in
+    Task.perform FetchFail FetchDone (Http.get reposDecoder url)
 
 httpErrorToString : String -> Http.Error -> String
 httpErrorToString name err =
@@ -91,34 +95,19 @@ httpErrorToString name err =
         404 -> name ++ "not found:("
         _ -> msg
 
-httpResultToAction : String -> Result Http.Error (List Repo) -> Msg
-httpResultToAction name result =
-  case result of
-    Ok repos ->
-      FetchDone repos
-    Err err ->
-      Error (httpErrorToString name err)
-
--- fetchDataAsEffects : String -> Effects Action
--- fetchDataAsEffects name =
---   fetchData name
---     |> Task.map (httpResultToAction name)
---     |> Effects.task
-
 -- Init
 
 init : ( Model, Cmd Msg )
 init =
   ( initialModel
-  -- , fetchData initialModel.userName )
-      , Cmd.none )
+  , fetchData initialModel.userName )
 
 -- Actions
 
 type Msg = NoOp
     | FetchData String
     | FetchDone (List Repo)
-    | Error String
+    | FetchFail Http.Error
     | NameChanged String
     | SelectRepo Repo
     | ChangeSort SortBy
@@ -132,19 +121,18 @@ update msg model =
       ( { model
           | isLoading = True
           , resultsFor = model.userName }
-      -- , fetchData model.userName )
-      , Cmd.none )
+      , fetchData model.userName )
     FetchDone results ->
       ( { model
           | repos = results
           , isLoading = False
           , alert = "" }
       , Cmd.none )
-    Error msg ->
+    FetchFail error ->
       ( { model
           | repos = []
           , isLoading = False
-          , alert = msg }
+          , alert = (httpErrorToString model.userName error) }
       , Cmd.none )
     NameChanged name ->
       ( { model
