@@ -92,7 +92,7 @@ httpErrorToString name err =
     Http.UnexpectedPayload _ -> "That's weird. Something is broken!"
     Http.BadResponse status msg ->
       case status of
-        404 -> name ++ " found:("
+        404 -> name ++ "not found:("
         _ -> msg
 
 httpResultToAction : String -> Result Http.Error (List Repo) -> Action
@@ -119,7 +119,7 @@ init =
 -- Actions
 
 type Action = NoOp
-    | FetchData (String)
+    | FetchData String
     | FetchDone (List Repo)
     | Error String
     | NameChanged String
@@ -171,7 +171,7 @@ onInput : Signal.Address Action -> (String -> Action) -> Attribute
 onInput address f =
   Events.on "input" Events.targetValue (\v -> Signal.message address (f v))
 
-onSubmit address value =
+oSubmit address value =
   Events.onWithOptions "submit"
     { stopPropagation = True, preventDefault = True }
     Json.value (\_ -> Signal.message address (FetchData value))
@@ -300,8 +300,7 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = []
-    }
+    , inputs = [] }
 
 main : Signal Html
 main =
