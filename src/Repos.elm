@@ -4,6 +4,7 @@ import List
 import Html exposing (..)
 import Html.App
 import Html.Attributes exposing (..)
+import Html.Events as Events
 import Http
 import Json.Decode as Json exposing ((:=))
 import Task exposing (..)
@@ -153,15 +154,6 @@ update msg model =
 
 -- View
 
--- onInput : Signal.Address Action -> (String -> Action) -> Attribute
--- onInput address f =
---   Events.on "input" Events.targetValue (\v -> Signal.message address (f v))
-
--- oSubmit address value =
---   Events.onWithOptions "submit"
---     { stopPropagation = True, preventDefault = True }
---     Json.value (\_ -> Signal.message address (FetchData value))
-
 headerView : Model -> Html Msg
 headerView model =
   header
@@ -173,14 +165,14 @@ headerView model =
       [ class "headline" ]
       [ text "Repos" ]
     , Html.form
-        [ -- onSubmit address model.userName
-          class "search-form" ]
+        [ Events.onSubmit (FetchData model.userName)
+        , class "search-form" ]
         [ span
           [ class "hint" ]
           [ text "github.com/" ]
         , input
             [ value model.userName
-            -- , onInput address NameChanged
+            , Events.onInput NameChanged
             , class "search-field" ] []
         , button
             [ type' "submit"
@@ -199,12 +191,12 @@ sortView model =
       [ class "sort-filter" ]
       [ button
         [ class (classNames Name)
-        -- , Events.onClick address (ChangeSort Name)
+        , Events.onClick (ChangeSort Name)
         ]
         [ text "name" ]
       , button
         [ class (classNames Stars)
-        -- , Events.onClick address (ChangeSort Stars)
+        , Events.onClick (ChangeSort Stars)
         ]
         [ text "stars" ]]
 
@@ -225,7 +217,7 @@ repoView model repo =
     [ class classNames ]
     [ div
       [ class "repo-main"
-      -- , Events.onClick address (SelectRepo repo)
+      , Events.onClick (SelectRepo repo)
       ]
       [ img
         [ src repo.avatarUrl
