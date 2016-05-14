@@ -2,7 +2,8 @@ module Repos exposing (main)
 
 import List
 import Html exposing (..)
-import Html.App as Html
+import Html.App
+import Html.Attributes exposing (..)
 import Http
 import Json.Decode as Json exposing ((:=))
 import Task exposing (..)
@@ -292,7 +293,7 @@ view model =
 
 main : Signal Html
 main =
-  Html.program
+  Html.App.program
     { init = init
     , update = update
     , view = view
