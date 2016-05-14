@@ -110,7 +110,8 @@ httpResultToAction name result =
 init : ( Model, Cmd Msg )
 init =
   ( initialModel
-  , fetchData initialModel.userName )
+  -- , fetchData initialModel.userName )
+      , Cmd.none )
 
 -- Actions
 
@@ -131,7 +132,8 @@ update msg model =
       ( { model
           | isLoading = True
           , resultsFor = model.userName }
-      , fetchData model.userName )
+      -- , fetchData model.userName )
+      , Cmd.none )
     FetchDone results ->
       ( { model
           | repos = results
