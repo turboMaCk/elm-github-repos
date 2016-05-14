@@ -1,16 +1,6 @@
-module Repos where
+module Repos exposing (main)
 
 import List
-import Graphics.Element exposing (..)
-import Http
-import Json.Decode as Json exposing ((:=))
-import Task
-import Signal
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events as Events
-import Effects exposing (Effects)
-import StartApp
 
 -- Model
 
