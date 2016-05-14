@@ -294,7 +294,7 @@ view model =
       , alertView model.alert
       , content ]]
 
-main : Signal Html
+main : Program Never
 main =
   Html.App.program
     { init = init
