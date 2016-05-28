@@ -117,40 +117,40 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     NoOp ->
-      ( model, Cmd.none )
+      model ! []
     FetchData name ->
-      ( { model
-          | isLoading = True
-          , resultsFor = model.userName }
-      , fetchData model.userName )
+      { model
+        | isLoading = True
+        , resultsFor = model.userName }
+      ! [ fetchData model.userName ]
     FetchDone results ->
-      ( { model
-          | repos = results
-          , isLoading = False
-          , alert = "" }
-      , Cmd.none )
+      { model
+        | repos = results
+        , isLoading = False
+        , alert = "" }
+       ! []
     FetchFail error ->
-      ( { model
-          | repos = []
-          , isLoading = False
-          , alert = (httpErrorToString model.userName error) }
-      , Cmd.none )
+      { model
+        | repos = []
+        , isLoading = False
+        , alert = (httpErrorToString model.userName error) }
+      ! []
     NameChanged name ->
-      ( { model
-          | userName = name }
-      , Cmd.none )
+      { model
+        | userName = name }
+      ! []
     SelectRepo repo ->
       let
         value =
           if repo.id == model.selected then -1 else repo.id
       in
-        ( { model
-            | selected = value }
-        , Cmd.none )
+        { model
+          | selected = value }
+        ! []
     ChangeSort attr ->
-      ( { model
-          | sortBy = attr }
-      , Cmd.none )
+      { model
+        | sortBy = attr }
+      ! []
 
 -- View
 
